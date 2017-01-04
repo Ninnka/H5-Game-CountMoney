@@ -1,8 +1,13 @@
 window.addEventListener("load", function () {
 
+  var addScope_url = "../countmoney_addscope.php";
+  var signUp_url = "";
+
   // 保存用户信息
   var username;
   var usertel;
+  var register_name = document.querySelector("input[name=name]");
+  var register_tel = document.querySelector("input[name=tel]");
 
   // 三个主要容器
   var game_wrapper = document.querySelector(".game-wrapper");
@@ -89,7 +94,22 @@ window.addEventListener("load", function () {
       game_register.classList.add("item-hidden");
       game_wrapper.classList.add("item-hidden");
       gaming.classList.remove("item-hidden");
+      username = register_name.value;
+      usertel = register_tel.value;
+      $.ajax({
+        type: "POST",
+        url: "http://localhost:8888/countmoney/view/countmoney_sign.php",
+        data: {
+          name: username,
+          tel: usertel
+        },
+        // dataType: "json",
+        success: function (res) {
+          console.log("res", res);
+        }
+      });
       initTimeAndScope();
+
     });
   }
   addStartBtn();
@@ -101,6 +121,7 @@ window.addEventListener("load", function () {
    * 游戏中部分
    */
 
+  var mountScope = 0;
 
   // 分数位置
   var initScopeUnits = 0;
@@ -118,7 +139,7 @@ window.addEventListener("load", function () {
     scopeUnits.innerHTML = "0";
     scopeTens.innerHTML = "0";
     scopeHundreds.innerHTML = "0";
-    countdown.innerHTML = "60";
+    countdown.innerHTML = "10";
     initScopeUnits = 0;
     initScopeTens = 0;
     initScopeHundreds = 0;
@@ -139,8 +160,26 @@ window.addEventListener("load", function () {
       if (countdown.innerHTML === "00") {
         clearInterval(countdownTimer);
         endCountdown();
+        storeScope();
       }
     }, 1000);
+  }
+
+  function storeScope() {
+    mountScope = scopeHundreds.innerHTML + scopeTens.innerHTML + scopeUnits.innerHTML;
+    console.log("mountScope", mountScope);
+    $.ajax({
+      type: "POST",
+      url: "countmoney_addscope.php",
+      data: {
+        name: username,
+        scope: mountScope
+      },
+      // dataType: "json",
+      success: function (res) {
+        console.log("res", res);
+      }
+    });
   }
 
 
